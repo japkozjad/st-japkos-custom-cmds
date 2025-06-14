@@ -8,8 +8,12 @@ import { SlashCommandParser } from '../../../slash-commands/SlashCommandParser.j
  * @returns {string} Command output
  */
 function commandCallback(args) {
-    const name = args?.name || 'Someone';
-    return `${name}'s phone is ringing`;
+    const inputField = document.querySelector('#send_textarea');
+        if (inputField) {
+            inputField.value = '/sys compat=true /ring ' + (args.name || 'Someone') + "'s phone is ringing";
+            document.querySelector('#send_textarea').focus();
+            const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true });
+            inputField.dispatchEvent(event);
 }
 
 jQuery(() => {
