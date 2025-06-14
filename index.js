@@ -1,26 +1,32 @@
 import { SlashCommand } from '../../../slash-commands/SlashCommand.js';
+import { ARGUMENT_TYPE, SlashCommandNamedArgument } from '../../../slash-commands/SlashCommandArgument.js';
+import { SlashCommandParser } from '../../../slash-commands/SlashCommandParser.js';
 
-// Usage: /ring Skye
-// Output: /sys compat=true Skye's phone is ringing
+/**
+ * Command callback for triggering the "ring" command.
+ * @param {object} args Command arguments
+ * @returns {string} Command output
+ */
+function commandCallback(args) {
+    const name = args?.name || 'Someone';
+    return `${name}'s phone is ringing`;
+}
 
-export default new SlashCommand({
-    name: "ring",
-    description: "Trigger a custom ring command: /sys compat=true <name>'s phone is ringing",
-    args: [
-        {
-            name: "target",
-            description: "Name of the person whose phone is ringing",
-            type: "string",
-            required: true
-        }
-    ],
-    execute({ args, send }) {
-        let target = args.target ? String(args.target).trim() : "";
-        if (!target) {
-            send("You must specify whose phone is ringing.");
-            return;
-        }
-        const output = `/sys compat=true ${target}'s phone is ringing`;
-        send(output);
-    }
+jQuery(() => {
+    SlashCommandParser.addCommandObject(SlashCommand.fromProps({
+        name: 'ring',
+        callback: commandCallback,
+        helpString: 'Trigger a command to indicate someone\'s phone is ringing.',
+        returns: 'A string indicating the phone is ringing.',
+        namedArgumentList: [
+            SlashCommandNamedArgument.fromProps({
+                name: 'name',
+                typeList: [ARGUMENT_TYPE.STRING],
+                defaultValue: 'Someone',
+                isRequired: false,
+                acceptsMultiple: false,
+                description: 'Name of the person whose phone is ringing',
+            }),
+        ],
+    }));
 });
