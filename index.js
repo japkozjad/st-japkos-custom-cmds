@@ -2,35 +2,49 @@ import { SlashCommand } from '../../../slash-commands/SlashCommand.js';
 import { ARGUMENT_TYPE, SlashCommandNamedArgument } from '../../../slash-commands/SlashCommandArgument.js';
 import { SlashCommandParser } from '../../../slash-commands/SlashCommandParser.js';
 
-/**
- * Command callback for triggering the "ring" command.
- * @param {object} args Command arguments
- * @returns {string} Command output
- */
-function commandCallback(args) {
-    const inputField = document.querySelector('#send_textarea');
+SlashCommandParser.addCommandObject(SlashCommand.fromProps({
+    name: 'ring',
+    callback: (namedArgs, unnamedArgs) => {
+        if (!unnamedArgs || unnamedArgs.length === 0) {
+            return 'Error: Please provide a name.';
+        }
+
+        const name = unnamedArgs.toString();
+        const message = `/sys compat=true ${name}'s phone is ringing`;
+
+        // Simulate input into the #send_textarea field and trigger the command
+        const inputField = document.querySelector('#send_textarea');
         if (inputField) {
-            inputField.value = '/sys compat=true /ring ' + (args.name || 'Someone') + "'s phone is ringing";
-            document.querySelector('#send_textarea').focus();
+            inputField.value = message;
+            inputField.focus();
             const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true });
             inputField.dispatchEvent(event);
-}
+        }
 
-jQuery(() => {
-    SlashCommandParser.addCommandObject(SlashCommand.fromProps({
-        name: 'ring',
-        callback: commandCallback,
-        helpString: 'Trigger a command to indicate someone\'s phone is ringing.',
-        returns: 'A string indicating the phone is ringing.',
-        namedArgumentList: [
-            SlashCommandNamedArgument.fromProps({
-                name: 'name',
-                typeList: [ARGUMENT_TYPE.STRING],
-                defaultValue: 'Someone',
-                isRequired: false,
-                acceptsMultiple: false,
-                description: 'Name of the person whose phone is ringing',
-            }),
-        ],
-    }));
-});
+        return ''; // Return an empty string to avoid additional output
+    },
+    aliases: [],
+    returns: 'Triggers a message indicating the phone is ringing',
+    unnamedArgumentList: [
+        SlashCommandArgument.fromProps({
+            description: 'The name of the person whose phone is ringing',
+            typeList: ARGUMENT_TYPE.STRING,
+            isRequired: true,
+        }),
+    ],
+    helpString: `
+        <div>
+            Triggers a message indicating someone's phone is ringing.
+        </div>
+        <div>
+            <strong>Example:</strong>
+            <ul>
+                <li>
+                    <pre><code class="language-stscript">/ring Skye</code></pre>
+                    triggers "/sys compat=true Skye's phone is ringing"
+                </li>
+            </ul>
+        </div>
+    `,
+}));
+
